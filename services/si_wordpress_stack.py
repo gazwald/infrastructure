@@ -12,7 +12,7 @@ class SIWordpressStack(core.Stack):
 
         super().__init__(scope, id, **kwargs)
      
-        60_seconds = core.Duration.seconds(60)
+        sixty_seconds = core.Duration.seconds(60)
 
         database_hostname = 'si-mariadb' 
         database_name = 'siwordpress'
@@ -37,8 +37,8 @@ class SIWordpressStack(core.Stack):
                 'WORDPRESS_DB_PASSWORD': database_password,
                 'WORDPRESS_DB_NAME': database_name
             },
-            start_timeout=60_seconds,
-            stop_timeout=60_seconds
+            start_timeout=sixty_seconds,
+            stop_timeout=sixty_seconds
         )
 
         mariadb_container = wordpress_task.add_container(
@@ -52,8 +52,8 @@ class SIWordpressStack(core.Stack):
                 'MYSQL_USER': database_username,
                 'MYSQL_PASSWORD': database_password
             },
-            start_timeout=60_seconds,
-            stop_timeout=60_seconds
+            start_timeout=sixty_seconds,
+            stop_timeout=sixty_seconds
         )
 
         wordpress_container.add_port_mappings(port_80)
