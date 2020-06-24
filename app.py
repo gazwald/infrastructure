@@ -2,20 +2,20 @@
 import os
 from aws_cdk import core
 
-from domains.domain_stack import DomainStack
-from vpcs.vpc_stack import VPCStack
-from containers.ecr_stack import ECRStack
+from vpcs.shared_vpc_stack import SharedVPCStack
+from ecs_clusters.shared_ecs_cluster import SharedECSClusterStack
 
+from services.si_wordpress_stack import SIWordpressStack
 
 app = core.App()
 
-us_west_2 = dict()
-us_west_2['env'] = {'account': os.getenv('AWS_ACCOUNT', os.getenv('CDK_DEFAULT_ACCOUNT', '')),
-                    'region': os.getenv('AWS_DEFAULT_REGION', os.getenv('CDK_DEFAULT_REGION', ''))}
+ap_southeast_2 = dict()
+ap_southeast_2['env'] = {'account': os.getenv('AWS_ACCOUNT', os.getenv('CDK_DEFAULT_ACCOUNT', '')),
+                         'region': os.getenv('AWS_DEFAULT_REGION', os.getenv('CDK_DEFAULT_REGION', 'ap-southeast-2'))}
 
-global_route53 = DomainStack(app, "DomainStack", env=us_west_2['env'])
+ap_southeast_2['vpc'] = SharedVPCStack(app, "SharedVPCStack", env=ap_southeast_2['env'])
+ap_southeast_2['ecs'] = SharedECSClusterStack(app, "SharedECSClusterStack", vpc=ap_southeast_2['vpc'].vpc, env=ap_southeast_2['env'])
 
-us_west_2['vpc'] = VPCStack(app, "VPCStack", env=us_west_2['env'])
-us_west_2['ecr'] = ECRStack(app, "ECRStack", env=us_west_2['env'])
+SIWordpressStack(app, "SIWordpressStack", cluster=ap_southeast_2['ecs'].cluster, env=ap_southeast_2['env'])
 
 app.synth()
