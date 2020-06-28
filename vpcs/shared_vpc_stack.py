@@ -11,11 +11,8 @@ class SharedVPCStack(core.Stack):
 
         super().__init__(scope, id, **kwargs)
        
-        subnet_public = ec2.SubnetConfiguration(
-            cidr_mask=24,
-            name='shared_public',
-            subnet_type=ec2.SubnetType.PUBLIC
-        )
+        self.subnet_public = self.define_public_subnet()
+        self.subnet_isolated = self.define_isolated_subnet()
 
         self.vpc = ec2.Vpc(
             self,
@@ -23,7 +20,10 @@ class SharedVPCStack(core.Stack):
             cidr='172.17.0.0/16',
             nat_gateways=0,
             max_azs=3,
-            subnet_configuration=[subnet_public]
+            subnet_configuration=[
+                self.subnet_public,
+                self.subnet_isolated
+            ]
         )
 
         self.add_gateway_endpoint('s3')
@@ -35,3 +35,16 @@ class SharedVPCStack(core.Stack):
             service=ec2.GatewayVpcEndpointAwsService(endpoint)
         )
         
+    def define_public_subnet(self):
+        return ec2.SubnetConfiguration(
+            cidr_mask=24,
+            name='shared_public',
+            subnet_type=ec2.SubnetType.PUBLIC
+        )
+
+    def define_isolated_subnet(self):
+        return ec2.SubnetConfiguration(
+            cidr_mask=24,
+            name='shared_isolated',
+            subnet_type=ec2.SubnetType.ISOLATED
+        )
