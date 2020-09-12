@@ -2,4 +2,4 @@
 
 cd "$(dirname $0)/.."
 
-./cdk-docker/cdk synth $1
+./cdk-docker/cdk destroy $1

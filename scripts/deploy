@@ -1,20 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
 
-cd $(dirname $0)/..
+cd "$(dirname $0)/.."
 
-if ! which cdk; then
-    echo "CDK command not found"
-    exit 1
-fi
-
-if test -d .env; then
-    source .env/bin/activate && \
-    pip install -r requirements.txt
-else
-    python3 -m venv .env && \
-    source .env/bin/activate && \
-    pip install -r requirements.txt
-fi
-
-cdk bootstrap && cdk deploy
+./cdk-docker/cdk deploy --require-approval never $1
