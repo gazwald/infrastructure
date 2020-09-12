@@ -1,5 +1,7 @@
 from aws_cdk import core
 import aws_cdk.aws_ecs as ecs
+import aws_cdk.aws_efs as efs
+import aws_cdk.aws_rds as rds
 import aws_cdk.aws_elasticloadbalancingv2 as elbv2
 
 class SIWordpressStack(core.Stack):
@@ -9,12 +11,16 @@ class SIWordpressStack(core.Stack):
                  id: str,
                  cluster: ecs.ICluster,
                  alb: elbv2.IApplicationLoadBalancer,
+                 volume: efs.IFileSystem,
+                 database: rds.IDatabaseCluster,
                  **kwargs) -> None:
 
         super().__init__(scope, id, **kwargs)
 
         self.cluster = cluster
         self.alb = alb
+        self.efs = efs
+        self.rds = rds
         self.sixty_seconds = core.Duration.seconds(60)
 
         self.database_hostname = '???'
@@ -71,4 +77,13 @@ class SIWordpressStack(core.Stack):
             },
             start_timeout=self.sixty_seconds,
             stop_timeout=self.sixty_seconds
+        )
+
+    def add_efs_volume(self):
+        efs_volume = ecs.EfsVolumeConfiguration(
+            file_system_id=self.efs.file_system_id
+        )
+        self.task.add_volume(
+            name='www',
+            efs_volume_configuration=efs_volume
         )

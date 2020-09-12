@@ -11,15 +11,20 @@ class SIDatabaseStack(core.Stack):
                  **kwargs) -> None:
 
         super().__init__(scope, id, **kwargs)
-    
-        cluster = rds.DatabaseCluster(
+   
+        engine = rds.DatabaseClusterEngine.aurora_mysql(
+            version=rds.AuroraMysqlEngineVersion.VER_2_08_1
+        )
+
+        master_user = rds.Login(
+            username='master'
+        )
+
+        self.cluster = rds.DatabaseCluster(
             self,
             "SIDatabase",
-            engine=rds.DatabaseClusterEngine.AURORA,
-            engine_version="5.6.10a",
-            master_user=rds.Login(
-                username='admin'
-            ),
+            engine=engine,
+            master_user=master_user,
             default_database_name='MyDatabase',
             instance_props={
                 "instance_type": ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2,
@@ -32,7 +37,7 @@ class SIDatabaseStack(core.Stack):
             instances=1
         )
 
-        cfn_cluster = cluster.node.default_child
+        cfn_cluster = self.cluster.node.default_child
         cfn_cluster.add_override("Properties.EngineMode", "serverless")
         cfn_cluster.add_override("Properties.ScalingConfiguration", { 
             'AutoPause': True, 
@@ -40,6 +45,6 @@ class SIDatabaseStack(core.Stack):
             'MinCapacity': 1, 
             'SecondsUntilAutoPause': 600
         }) 
-        cluster.node.try_remove_child('Instance1')
-        cluster.add_rotation_single_user()
+        self.cluster.node.try_remove_child('Instance1')
+        self.cluster.add_rotation_single_user()
         

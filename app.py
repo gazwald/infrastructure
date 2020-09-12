@@ -8,9 +8,11 @@ from albs.shared_alb_stack import SharedALBStack
 
 from services.si_wordpress_stack import SIWordpressStack
 from databases.si_database_stack import SIDatabaseStack
+from volumes.si_volume_stack import SIVolumeStack
 
 app = core.App()
 
+si = dict()
 ap_southeast_2 = dict()
 ap_southeast_2['env'] = {'account': os.getenv('AWS_ACCOUNT', os.getenv('CDK_DEFAULT_ACCOUNT', '')),
                          'region': os.getenv('AWS_DEFAULT_REGION', os.getenv('CDK_DEFAULT_REGION', 'ap-southeast-2'))}
@@ -28,16 +30,28 @@ ap_southeast_2['alb'] = SharedALBStack(app,
                                        "SharedALBStack",
                                        vpc=ap_southeast_2['vpc'].vpc,
                                        env=ap_southeast_2['env'])
-SIDatabaseStack(app,
-                "SIDatabaseStack",
-                vpc=ap_southeast_2['vpc'].vpc,
-                env=ap_southeast_2['env'])
+si['database'] = SIDatabaseStack(
+    app,
+    "SIDatabaseStack",
+    vpc=ap_southeast_2['vpc'].vpc,
+    env=ap_southeast_2['env']
+)
 
-SIWordpressStack(app,
-                 "SIWordpressStack",
-                 cluster=ap_southeast_2['ecs'].cluster,
-                 alb=ap_southeast_2['alb'].alb,
-                 env=ap_southeast_2['env'])
+si['volume'] = SIVolumeStack(
+    app,
+    "SIVolumeStack",
+    vpc=ap_southeast_2['vpc'].vpc,
+    env=ap_southeast_2['env']
+)
 
+si['wordpress'] = SIWordpressStack(
+    app,
+    "SIWordpressStack",
+    cluster=ap_southeast_2['ecs'].cluster,
+    alb=ap_southeast_2['alb'].alb,
+    volume=si['volume'].file_system,
+    database=si['database'].cluster,
+    env=ap_southeast_2['env']
+)
 
 app.synth()
