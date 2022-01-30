@@ -11,9 +11,7 @@ app = core.App()
 ap_southeast_2 = dict()
 ap_southeast_2["env"] = {
     "account": os.getenv("AWS_ACCOUNT", os.getenv("CDK_DEFAULT_ACCOUNT", "")),
-    "region": os.getenv(
-        "AWS_DEFAULT_REGION", os.getenv("CDK_DEFAULT_REGION", "ap-southeast-2")
-    ),
+    "region": "ap-southeast-2"
 }
 
 ap_southeast_2["vpc"] = SharedVPCStack(app, "SharedVPCStack", env=ap_southeast_2["env"])
@@ -25,7 +23,8 @@ ap_southeast_2["ecs"] = SharedECSClusterStack(
     env=ap_southeast_2["env"],
 )
 
-ap_southeast_2["alb"] = SharedALBStack(
-    app, "SharedALBStack", vpc=ap_southeast_2["vpc"].vpc, env=ap_southeast_2["env"]
-)
+# ap_southeast_2["alb"] = SharedALBStack(
+#     app, "SharedALBStack", vpc=ap_southeast_2["vpc"].vpc, env=ap_southeast_2["env"]
+# )
+
 app.synth()
