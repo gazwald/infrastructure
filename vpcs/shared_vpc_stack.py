@@ -1,9 +1,10 @@
-from aws_cdk import core
-import aws_cdk.aws_ec2 as ec2
+from aws_cdk import Stack
+from aws_cdk import aws_ec2 as ec2
+from constructs import Construct
 
 
-class SharedVPCStack(core.Stack):
-    def __init__(self, scope: core.Construct, id: str, **kwargs) -> None:
+class SharedVPCStack(Stack):
+    def __init__(self, scope: Construct, id: str, **kwargs) -> None:
 
         super().__init__(scope, id, **kwargs)
 
@@ -34,5 +35,7 @@ class SharedVPCStack(core.Stack):
 
     def define_isolated_subnet(self):
         return ec2.SubnetConfiguration(
-            cidr_mask=24, name="shared_isolated", subnet_type=ec2.SubnetType.ISOLATED
+            cidr_mask=24,
+            name="shared_isolated",
+            subnet_type=ec2.SubnetType.PRIVATE_ISOLATED,
         )

@@ -1,11 +1,11 @@
-from aws_cdk import core
+from aws_cdk import Stack
+from aws_cdk import aws_ec2 as ec2
+from aws_cdk import aws_ecs as ecs
+from constructs import Construct
 
-import aws_cdk.aws_ecs as ecs
-import aws_cdk.aws_ec2 as ec2
 
-
-class SharedECSClusterStack(core.Stack):
-    def __init__(self, scope: core.Construct, id: str, vpc: ec2.Vpc, **kwargs) -> None:
+class SharedECSClusterStack(Stack):
+    def __init__(self, scope: Construct, id: str, vpc: ec2.Vpc, **kwargs) -> None:
 
         super().__init__(scope, id, **kwargs)
 
@@ -13,7 +13,7 @@ class SharedECSClusterStack(core.Stack):
 
         self.cluster = ecs.Cluster(
             self,
-            cluster_name,
+            "ecs",
             cluster_name=cluster_name,
             enable_fargate_capacity_providers=True,
             vpc=vpc,
